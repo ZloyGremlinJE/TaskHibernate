@@ -5,6 +5,7 @@ import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -114,28 +115,40 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
+        List<User> result = new ArrayList<>();
         Session session = Util.getFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            List<User> result = session.createQuery("FROM User").list();
+            result = session.createQuery("FROM User").list();
             session.getTransaction().commit();
             return result;
-        }catch(Exception e) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (tx != null) {
+                tx.rollback();
+            }
+        } finally {
+            session.close();
         }
-
-        session.beginTransaction();
-        List<User> result = session.createQuery("FROM User").list();
-        session.getTransaction().commit();
         return result;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = Util.getSession();//currentSession() autocloseable no need session.close()
-        session.beginTransaction();
-        session.createQuery("DELETE FROM User").executeUpdate();
-        session.getTransaction().commit();
+        Session session = Util.getFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.createQuery("DELETE FROM User").executeUpdate();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (tx != null) {
+                tx.rollback();
+            }
+        } finally {
+            session.close();
+        }
     }
 }
