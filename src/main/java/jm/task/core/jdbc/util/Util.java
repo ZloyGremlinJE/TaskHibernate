@@ -1,19 +1,14 @@
 package jm.task.core.jdbc.util;
 
 import jm.task.core.jdbc.model.User;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
@@ -30,15 +25,7 @@ public class Util {
         }
     }
 
-    public static Session getSession() {
-        if (factory == null) {
-            Configuration configuration = getInitializedConfiguration();
-            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                    .applySettings(configuration.getProperties()).build();
-            factory = configuration.buildSessionFactory(serviceRegistry);
-        }
-        return factory.getCurrentSession();
-    }
+
 
     private static Configuration getInitializedConfiguration(){
         Configuration configuration = new Configuration()
@@ -48,6 +35,12 @@ public class Util {
     }
 
     public static SessionFactory getFactory() {
+        if (factory == null) {
+            Configuration configuration = getInitializedConfiguration();
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties()).build();
+            factory = configuration.buildSessionFactory(serviceRegistry);
+        }
         return factory;
     }
 }
